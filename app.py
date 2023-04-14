@@ -1,38 +1,72 @@
 from flask import Flask
 import emailSender
 import db
+import multiprocessing
+import time
+import psutil
 
 app = Flask (__name__)
+
+def memory_usage(message: str = 'debug'):
+    # current process RAM usage
+    p = psutil.Process()
+    rss = p.memory_info().rss / 2 ** 20 # Bytes to MB
+    print(f"[{message}] memory usage: {rss: 10.5f} MB")
 
 # smtp 서버 연결
 @app.before_first_request
 def before_first_request():
-    global smtp_connect
     global conn, cursor
-    smtp_connect = emailSender.connect_smtp_server()
     conn, cursor = db.connectionRDS()
 
 @app.route('/')
 def hello_world():
   return 'hello'
-
+    
 # email로 기사 보내는 api
 @app.route('/send')
 def send_request():
-  smtp_server = smtp_connect
-  user_list = db.getAllUserInfo(cursor)
+  with app.app_context():
+    manager = multiprocessing.Manager()
+    msg_list = manager.dict()
+    user_list = db.getAllUserInfo(cursor)
 
-  # user_list : user[]
-  # user[n] : n번째 정보
+    start = int(time.time())
 
-  # user_list -> keyword -> analyze result 접근해서 정보 가져옴
-  # 그 정보를 send_email에 보냄
+    proc_list = []
 
-  for user in user_list:
-    emailSender.send_email(smtp_server, user[1])
-    print("send:"+str(user[0]))
+    memory_usage("start!!!")
 
-  return "end"
+    for i, user in enumerate(user_list):
+      mp = multiprocessing.Process(target=emailSender.make_email_templet,args=(user, i, msg_list))
+      mp.start()
+      proc_list.append(mp)
+    
+    for proc in proc_list:
+      proc.join()
+
+    print("make form times:", int(time.time())-start)
+
+    start2 = int(time.time())
+
+    proc_list2 = []
+
+    for i in range(len(user_list)):
+      mp = multiprocessing.Process(target=emailSender.send_email,args=(user_list[i], msg_list[i]))
+      mp.start()
+      memory_usage("process:{i}")
+      proc_list2.append(mp)
+
+    for proc in proc_list2:
+      proc.join()
+
+    end = int(time.time())
+
+    print("send run time(sec) :", end - start2)
+    
+    print("total run time(sec) :", end - start)
+
+    return "end"
   
 if __name__ == "__main__":
   app.run(host='0.0.0.0', port='5001', debug=True)
