@@ -7,12 +7,6 @@ import psutil
 
 app = Flask (__name__)
 
-def memory_usage(message: str = 'debug'):
-    # current process RAM usage
-    p = psutil.Process()
-    rss = p.memory_info().rss / 2 ** 20 # Bytes to MB
-    print(f"[{message}] memory usage: {rss: 10.5f} MB")
-
 # smtp 서버 연결
 @app.before_first_request
 def before_first_request():
@@ -31,11 +25,9 @@ def send_request():
     msg_list = manager.dict()
     user_list = db.getAllUserInfo(cursor)
 
-    start = int(time.time())
+    start_create_html = int(time.time())
 
     proc_list = []
-
-    memory_usage("start!!!")
 
     for i, user in enumerate(user_list):
       mp = multiprocessing.Process(target=emailSender.make_email_templet,args=(user, i, msg_list))
@@ -45,16 +37,15 @@ def send_request():
     for proc in proc_list:
       proc.join()
 
-    print("make form times:", int(time.time())-start)
+    print("make form times:", int(time.time())-start_create_html)
 
-    start2 = int(time.time())
+    start_send_email = int(time.time())
 
     proc_list2 = []
 
     for i in range(len(user_list)):
       mp = multiprocessing.Process(target=emailSender.send_email,args=(user_list[i], msg_list[i]))
       mp.start()
-      memory_usage("process:{i}")
       proc_list2.append(mp)
 
     for proc in proc_list2:
@@ -62,9 +53,9 @@ def send_request():
 
     end = int(time.time())
 
-    print("send run time(sec) :", end - start2)
+    print("send run time(sec) :", end - start_send_email)
     
-    print("total run time(sec) :", end - start)
+    print("total run time(sec) :", end - start_create_html)
 
     return "end"
   
