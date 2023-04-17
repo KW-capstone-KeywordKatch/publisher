@@ -1,0 +1,15 @@
+이메일로 html을 제대로 보낼수 없는 현상 발생
+해결책
+table형식 : https://heropy.blog/2018/12/30/html-email-template/
+
+발신자 이름이 제대로 안바뀌는 현상
+해결책
+https://stackoverflow.com/questions/46107983/how-to-add-sender-name-before-sender-address-in-python-email-script
+
+사용자 여러명에게 서로다른 멀티 프로세싱으로 email 보내기가 안됨
+해결책
+이메일 보내는 프로세스마다 smtp서버에 연결 -> 연결은 많아지지만 토탈 시간은 훨씬 짧다.
+
+다른 계정의 퍼플릭 엑세스 허용 안 된 RDS에 연결하기
+해결책
+서로의 보안 정책 인바운드 규칙에 서로의 IP를 허가.
