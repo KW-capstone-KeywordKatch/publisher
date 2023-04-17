@@ -3,11 +3,11 @@ import sys
 import logging
 
 #RDS INFO
-host = "localhost" # end point
+host = "user-db.cvuep7zbenoa.ap-northeast-2.rds.amazonaws.com" # end point
 port = 3306
-username = "root"
-database = "findvibe_db"
-password = "findvibe1"
+username = "admin"
+database = "kk_user_db"
+password = "mingeun990311"
 
 # function
 

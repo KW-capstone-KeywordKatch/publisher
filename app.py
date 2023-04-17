@@ -3,7 +3,6 @@ import emailSender
 import db
 import multiprocessing
 import time
-import psutil
 
 app = Flask (__name__)
 
