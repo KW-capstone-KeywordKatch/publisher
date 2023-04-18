@@ -4,14 +4,14 @@ import db
 import multiprocessing
 import time
 
-app = Flask(__name__, static_folder="../index/build/static", template_folder="../index/build")
+app = Flask(__name__, static_folder="../client/build/static", template_folder="../client/build")
 
 # smtp 서버 연결
 @app.before_first_request
 def before_first_request():
     global conn, cursor
-    #conn, cursor = db.connectLOCALRDS()
-    conn, cursor = db.connectUSERRDS()
+    conn, cursor = db.connectLOCALRDS()
+    #conn, cursor = db.connectUSERRDS()
 
 @app.route('/')
 def come_to_publisher():
