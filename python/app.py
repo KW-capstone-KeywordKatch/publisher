@@ -3,8 +3,9 @@ import emailSender
 import db
 import multiprocessing
 import time
+import os
 
-app = Flask(__name__, static_folder="../client/build/static", template_folder="../client/build")
+app = Flask(__name__, static_folder="../client/build/static", template_folder="../client")
 
 # smtp 서버 연결
 @app.before_first_request
@@ -15,7 +16,7 @@ def before_first_request():
 
 @app.route('/')
 def come_to_publisher():
-  return render_template("index.html")
+  return render_template("build/index.html")
     
 # email로 기사 보내는 api
 @app.route('/send')

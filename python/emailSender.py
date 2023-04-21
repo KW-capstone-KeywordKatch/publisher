@@ -44,7 +44,7 @@ def make_email_templet(user, num, msg_list):
 
   # 전송하는 html
   html = render_template(
-    'news_html.html',
+    'templates/news_html.html',
     today="2023년 9월 7일",
     nickname="나는범인이다",
     news1_unlone="한국경제",
