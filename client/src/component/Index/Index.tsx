@@ -3,6 +3,7 @@ import React, { useState } from "react";
 
 const Index: React.FunctionComponent = () => {
   const [userInfos, setUserInfos] = useState<string[]>();
+  const [resultToSend, setResult] = useState<boolean>();
 
   const getUserInfo = () => {
     fetch("/get/user")
@@ -15,6 +16,10 @@ const Index: React.FunctionComponent = () => {
       });
   };
 
+  const sendEmail = () => {
+    fetch("/send").then(() => setResult(true));
+  };
+
   const renderUserInfos = () => {
     if (userInfos) {
       return userInfos.map((userInfo) => {
@@ -25,8 +30,37 @@ const Index: React.FunctionComponent = () => {
     }
   };
 
+  const connectUserRDS = () => {
+    fetch("/connect/user").then(() => console.log("user RDS connect success!"));
+  };
+
+  const connectEditorRDS = () => {
+    fetch("/connect/editor").then(() =>
+      console.log("editor RDS connect success!")
+    );
+  };
+
   return (
     <div className="flex flex-col">
+      <div className="flex flex-col mx-[30px] my-[20px]">
+        <button
+          className="border-2 rounded-sm p-[5px]"
+          onClick={() => {
+            connectUserRDS();
+          }}
+        >
+          user rds 연결
+        </button>
+        <button
+          className="border-2 rounded-sm p-[5px]"
+          onClick={() => {
+            connectEditorRDS();
+          }}
+        >
+          editor rds 연결
+        </button>
+        <div className="flex flex-col">{renderUserInfos()}</div>
+      </div>
       <div className="flex flex-col mx-[30px] my-[20px]">
         <button
           className="border-2 rounded-sm p-[5px]"
@@ -38,7 +72,17 @@ const Index: React.FunctionComponent = () => {
         </button>
         <div className="flex flex-col">{renderUserInfos()}</div>
       </div>
-      <div></div>
+      <div className="flex flex-col mx-[30px] my-[20px]">
+        <button
+          className="border-2 rounded-sm p-[5px]"
+          onClick={() => {
+            sendEmail();
+          }}
+        >
+          이메일 전송하기
+        </button>
+        {resultToSend && <div className="flex flex-col">{"send success"}</div>}
+      </div>
     </div>
   );
 };

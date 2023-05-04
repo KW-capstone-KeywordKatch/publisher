@@ -23,7 +23,7 @@ def connect_smtp_server():
   
   return smtp_connect
 
-def make_email_templet(user, num, msg_list):
+def make_email_templet(user, idx, msg_list):
   recv_email = user[1]
 
   msg = MIMEMultipart("alternative")
@@ -82,7 +82,7 @@ def make_email_templet(user, num, msg_list):
   news = MIMEText(html, "html")
   msg.attach(news)
 
-  msg_list[num] = msg
+  msg_list[idx] = msg
 
 def send_email(user, msg):
   try:
