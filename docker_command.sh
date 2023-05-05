@@ -12,7 +12,7 @@ elif [ $1 == "push" ]; then
 elif [ $1 == "pull" ]; then
   sudo docker pull hungkunge/keywordkatch_docker
 elif [ $1 == "run" ]; then
-  sudo docker run -b -p 5001:5001 hungkunge/keywordkatch_docker
+  sudo docker run -d -p 5001:5001 hungkunge/keywordkatch_docker
 elif [ $1 == "stop" ]; then
   sudo docker stop $(sudo docker ps -aq)
 else
