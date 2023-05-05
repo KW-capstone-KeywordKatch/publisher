@@ -17,16 +17,19 @@ def come_to_publisher():
 def connect_local_db():
   global local_connect, local_cursor
   local_connect, local_cursor = db.connectLOCALRDS()
+  return "success"
 
 @app.route('/connect/editor')
 def connect_editor_db():
   global editor_connect, editor_cursor
   editor_connect, editor_cursor = db.connectARTICLERDS()
+  return "success"
 
 @app.route('/connect/user')
 def connect_user_db():
   global user_connect, user_cursor
-  user_connect, user_cursor = db.connectUSERRDS()   
+  user_connect, user_cursor = db.connectUSERRDS()
+  return "success"
 
 
 # email로 기사 보내기
