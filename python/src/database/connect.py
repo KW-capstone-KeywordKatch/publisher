@@ -33,30 +33,3 @@ def connectLOCALRDS():
     sys.exit(1)
 
   return conn, cursor
-
-# get user data ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
-
-def getAllUserInfo(cursor):
-  query = "SELECT * FROM user_info"
-
-  cursor.execute(query)
-  result = cursor.fetchall()
-
-  return result
-
-
-def getAllUserIdAndEmail(cursor):
-  query = "SELECT user_id, email FROM user_info"
-
-  cursor.execute(query)
-  result = cursor.fetchall()
-  return result
-
-# 반환 : arr(str)
-def getUserInterest(cursor, user_id):
-  query = "SELECT interest FROM user_interest WHERE user_id == ?"
-  
-  cursor.execute(query, (user_id,))
-  interest = cursor.fetchall()
-  result = interest.split(" ")
-  return result

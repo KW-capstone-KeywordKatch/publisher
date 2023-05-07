@@ -30,6 +30,12 @@ const Index: React.FunctionComponent = () => {
     }
   };
 
+  const connectLocalRDS = () => {
+    fetch("/connect/local").then(() =>
+      console.log("local RDS connect success!")
+    );
+  };
+
   const connectUserRDS = () => {
     fetch("/connect/user").then(() => console.log("user RDS connect success!"));
   };
@@ -46,6 +52,14 @@ const Index: React.FunctionComponent = () => {
         <button
           className="border-2 rounded-sm p-[5px]"
           onClick={() => {
+            connectLocalRDS();
+          }}
+        >
+          local rds 연결
+        </button>
+        <button
+          className="border-2 rounded-sm p-[5px]"
+          onClick={() => {
             connectUserRDS();
           }}
         >
@@ -59,7 +73,6 @@ const Index: React.FunctionComponent = () => {
         >
           editor rds 연결
         </button>
-        <div className="flex flex-col">{renderUserInfos()}</div>
       </div>
       <div className="flex flex-col mx-[30px] my-[20px]">
         <button
