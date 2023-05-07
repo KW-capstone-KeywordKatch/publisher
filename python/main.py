@@ -50,13 +50,24 @@ def send_request():
     # {user_id : {keyword:[[기사정보1..],[기사정보2..], ...], ...}, ...} : 사용자 별 메일 보낼 때 사용
     user_interest_article_dict = editor.getArticleInfoDict(editor_cursor,  user_interest_article_id_dict)
 
+    sendable_user_info_dict = {}
+
+    for user_id in user_info_dict.keys():
+      if user_interest_article_dict.get(user_id) is not None:
+        sendable_user_info_dict[user_id] = user_info_dict[user_id]
+    
+    print("user:", len(user_info_dict))
+    
+
     # 2. 사용자 별 이메일 폼 생성
-    html_list = multi.create_email_templet_using_multiprocess(user_info_dict, user_interest_article_dict)
+    html_list = multi.create_email_templet_using_multiprocess(sendable_user_info_dict, user_interest_article_dict)
+
+    print("html_list:",len(html_list))
 
     # 3. 이메일 전송
     start_send_email = int(time.time())
 
-    multi.send_email_using_multiprocess(html_list, user_info_dict)
+    multi.send_email_using_multiprocess(html_list, sendable_user_info_dict)
 
     end = int(time.time())
 
