@@ -1,13 +1,7 @@
-import smtplib
-import os
-from email.mime.image import MIMEImage
 import src.sender.noPictureSrc as noPic
-from flask import render_template
-import logging
-import time
 from datetime import datetime
 
-# 이메일 html 파츠 생성 ------------------------------------
+# 기사 html form 파츠 추가------------------------------------
 def add_box_form(nickname):
   today = datetime.today()
   today_str = today.strftime("%Y년 %m월 %d일")
@@ -144,7 +138,7 @@ def add_main_article(keyword, article_info:list):
 
 def add_sub_article(article_info_list:list):
 
-  article_info_list = article_info_list[1:4] if len(article_info_list) >3 else article_info_list
+  article_info_list = article_info_list[1:4] if len(article_info_list) >=4 else article_info_list
 
   html_sub_articles = f'''
                     <!-- 텍스트 -->
@@ -251,7 +245,8 @@ def add_html_end():
   </html>
   '''
   return html_end
-# 이메일 html 폼 동적 생성 -------------------------------------
+
+# 기사 html form 동적 생성 -------------------------------------
 
 def create_form(nickname, article_dict):
   # keyword 당 1개의 main 기사와 3개의 sub 기사 전달

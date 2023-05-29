@@ -6,24 +6,23 @@ from email.utils import formataddr
 import logging
 import time
 import src.sender.emailForm as emailForm
-
+from flask import render_template
 # smtp 기본 기능 --------------------------------------------------------
 
 # smtp 서버와 연결
 def connect_smtp_server():
-  print("start connection")
-  smtp_server = "smtp.gmail.com"
-  smtp_port = 587
-  # 보내는 사람의 email - 임시로 넣음. 나중에 따로 계정 파서 넣기
-  # 구글 앱 비밀번호 - 2차 인증 - 앱 비밀번호
-  # SMTP 세션 생성
-  smtp_connect = smtplib.SMTP(smtp_server, smtp_port)
-  smtp_connect.starttls()
-  smtp_connect.login(os.getenv('ADMIN_EMAIL'), os.getenv('ADMIN_PASSWORD'))
+  try :
+    smtp_server = "smtp.gmail.com"
+    smtp_port = 587
 
-  print("end connection")
-  
-  return smtp_connect
+    smtp_connect = smtplib.SMTP(smtp_server, smtp_port)
+    smtp_connect.starttls()
+    smtp_connect.login(os.getenv('ADMIN_EMAIL'), os.getenv('ADMIN_PASSWORD'))
+    
+    return smtp_connect
+
+  except Exception as e:
+    logging.error("smtp connect fail:"+str(e))
 
 # 이메일 전송
 def send_email(user, msg):
@@ -42,10 +41,7 @@ def create_email_templet(user, idx, msg_list, articles_dict:dict):
   recv_email = user[0]
 
   msg = MIMEMultipart("alternative")
-  # 여기에 뉴스 보내는 날짜 추가하기 ( 서버에서 같이 받기 or 현재 날짜 보내기)
-  # 사용자가 받는 메일 제목
   msg["Subject"] = "오늘의 기사"
-  # 표시 될 발송자 이름
   msg["From"] = formataddr(("KeywordKatch", os.getenv('ADMIN_EMAIL')))
   msg["To"] = recv_email
 
@@ -57,3 +53,18 @@ def create_email_templet(user, idx, msg_list, articles_dict:dict):
 
   msg_list[idx] = msg
 
+def create_test_email_templet(user):
+  recv_email = user[0]
+
+  msg = MIMEMultipart("alternative")
+  msg["Subject"] = "오늘의 기사"
+  msg["From"] = formataddr(("KeywordKatch", os.getenv('ADMIN_EMAIL')))
+  msg["To"] = recv_email
+
+  # html 만들기
+  html = render_template('templates/initial_html.html',)  
+  
+  news = MIMEText(html, "html")
+  msg.attach(news)
+
+  return msg, html  

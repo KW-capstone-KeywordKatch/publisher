@@ -7,7 +7,7 @@ elif [ $1 == "reset" ]; then
   sudo docker rm -f $(docker ps -qa);
   sudo docker image rm -f $(docker image ls -q);
 elif [ $1 == "push" ]; then
-  sudo docker push hungkunge/keywordkatch_docker
+  docker push hungkunge/keywordkatch_docker
 #ec2에서
 elif [ $1 == "pull" ]; then
   sudo docker pull hungkunge/keywordkatch_docker
@@ -18,4 +18,3 @@ elif [ $1 == "stop" ]; then
 else
   echo "wrong command!"
 fi
-
