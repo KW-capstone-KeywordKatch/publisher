@@ -30,8 +30,8 @@ def connect_user_db():
 # 사용자에게 email로 기사 보내기
 @app.route('/send')
 def send_request():
-  send.send_email_each_time(user_cursor, editor_cursor)
-  return "end"
+  response = send.send_email_each_time(user_cursor, editor_cursor)
+  return response
 
 # 모든 유저 정보 열람
 @app.route('/get/user')
@@ -43,10 +43,16 @@ def get_user():
 @app.route('/get/articles/<user_id>')
 def get_articles_for_user(user_id):
   # ( user_id , [관심사1, 관심사2...] )
-  user_interest = user.getUserInterestDict(user_cursor, [user_id])
+  user_interest = user.getUsersInterest(user_cursor, [user_id])
+
+  if user_interest == None :
+    return {}
 
   # {user_id : {keyword:["article_id1","article_id2"...]}, ...} : 키워드 별 기사 내용 받아 올 때 사용
   user_interest_article_id = editor.getUserInterestArticleIdDict(editor_cursor, user_interest)
+
+  if user_interest_article_id == None:
+    return {}
 
   # {user_id : {keyword:[[기사정보1..],[기사정보2..], ...], ...}, ...} : 사용자 별 메일 보낼 때 사용
   user_interest_article = editor.getArticleInfoDictForClient(editor_cursor,  user_interest_article_id)

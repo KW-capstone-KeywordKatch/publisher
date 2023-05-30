@@ -1,6 +1,6 @@
-from datetime import datetime, timedelta, time
-# about user RDS ----------------------------------------------------------------------
+from datetime import datetime
 
+# about user RDS ----------------------------------------------------------------------
 def getAllUserInfo(cursor):
   query = "SELECT * FROM user_info"
 
@@ -27,40 +27,49 @@ def getUserInterest(cursor, user_ids):
     result = cursor.fetchall()
     return result
 
-# process user data --------------------------------------------------
+# process user data -----------------------------------------------------------------
 
 # 사용자의 정보 반환 ( user_id : [이메일, 닉네임]의 딕셔너리, user_id 리스트 )
-def getUserInfoDictAndUserIdList(user_cursor):
+# 사용자 전송 시간 까지 확인함
+def getUserData(user_cursor):
   user_infos = getAllUserInfo(user_cursor)
   
   user_info_dict = {}
   user_id_list = []
 
+  if len(user_infos) == 0 :
+    return user_info_dict, user_id_list
+
   for user_info in user_infos:
-    tmp = list(user_info)
-    is_sendable_user = checkUserSendTime(tmp)
+    user_data = list(user_info)
+    is_sendable_user = checkUserSendTime(user_data)
 
     if is_sendable_user:
-      user_info_dict[tmp[0]] = [tmp[1],tmp[3]]
-      user_id_list.append(tmp[0])
+      user_info_dict[user_data[0]] = [user_data[1],user_data[3]]
+      user_id_list.append(user_data[0])
+
+  print("전송 유저 : ",user_info_dict)   
 
   return user_info_dict, user_id_list
 
 # 사용자 별 관심사 반환 ( user_id : [관심사1, 관심사2...] 의 딕셔너리 )
-def getUserInterestDict(user_cursor, user_id_list):
+def getUsersInterest(user_cursor, user_id_list):
     user_interests = getUserInterest(user_cursor, user_id_list)
+
     user_interest_dict = {}
 
+    # dict에 key : user_id 가 없으면 추가, 있으면 해당 value(interest)에 이어 붙이기
     for user_interest in user_interests:
-      if (user_interest[0] in user_interest_dict):
-        user_interest_dict[user_interest[0]].append(user_interest[1])
-      else :
-        user_interest_dict[user_interest[0]] = [user_interest[1]]
-    
+        if user_interest[0] in user_interest_dict:
+            user_interest_dict[user_interest[0]].append(user_interest[1])
+        else:
+            user_interest_dict[user_interest[0]] = [user_interest[1]]
+  
     return user_interest_dict
 
 # 사용자 send_time 확인하기
 def checkUserSendTime(user):
+  user_nickname = user[3]
   user_send_time = user[2]
 
   if user_send_time == None:
@@ -73,15 +82,14 @@ def checkUserSendTime(user):
 
   for user_time_str in user_send_time_str_list:
     user_time = datetime.strptime(user_time_str, "%H%M").time().strftime("%H:%M")
-    print(user_time_str,"을",user_time,"로")
     user_send_time_list.append(user_time)
 
-  print(user_send_time_list,"에는",current_time,"가 있나요?")
+  print(user_nickname,"님의 이메일 전송시간 확인 중..")
   
   if current_time in user_send_time_list:
-    print("네!")
+    print("이메일 전송 가능")
     return True
   else :
-    print("아니오!")
+    print("이메일 전송 불가능")
     return False
     

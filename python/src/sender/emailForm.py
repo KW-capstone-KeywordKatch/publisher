@@ -54,7 +54,7 @@ def add_main_article(keyword, article_info:list):
                       <p
                         style="color: white; font-size: 20px; font-weight: 700"
                       >
-                        {keyword}와 관련된 뉴스
+                        {keyword}{has_final_consonant(keyword)} 관련된 뉴스
                       </p>
                     </td>
                   </tr>
@@ -117,10 +117,10 @@ def add_main_article(keyword, article_info:list):
                           <td style="font-size: 0; line-height: 0" width="20">
                             &nbsp;
                           </td>
-                          <td width="212">
+                          <td width="212" height="141" style="text-align: center; border: 1px solid black;">
                             <!-- 기사 사진-->
                             <img
-                              style="width: 212px; height: 141px"
+                              style="max-width: 212px; max-height: 141px"
                               src="{article_picture_src}"
                               alt="기사사진"
                             />
@@ -129,12 +129,16 @@ def add_main_article(keyword, article_info:list):
                       </table>
                     </td>
                   </tr>
+  '''
+  return html_article_main
+
+def space_between_article():
+  return f'''
                   <!--뉴스 사이 공백 -->
                   <tr>
                     <td style="padding: 10px"></td>
                   </tr>
   '''
-  return html_article_main
 
 def add_sub_article(article_info_list:list):
 
@@ -152,6 +156,7 @@ def add_sub_article(article_info_list:list):
   '''
 
   for article_info in article_info_list:
+    article_title = article_info[3][0:30] + "..." if len(article_info[3]) > 30 else article_info[3]
     html_sub_article = f'''
                     <!--그 외 기사 1 -->
                     <tr id="etc_news1">
@@ -169,7 +174,7 @@ def add_sub_article(article_info_list:list):
                                 <tr>
                                   <!-- 기사 제목 -->
                                   <td width="444" style="font-size: 14px">
-                                    {article_info[3]}
+                                    {article_title}
                                   </td>
                                 </tr>
                               </table>
@@ -246,6 +251,22 @@ def add_html_end():
   '''
   return html_end
 
+# 문자열의 마지막 문자가 받침이 있는지 없는지 확인 : true -> 받침이 있음
+def has_final_consonant(check_str):
+  check_char = check_str[-1]
+  # 한글의 경우
+  if ord('가') <= ord(check_char) <= ord('힣'):
+    check_char_code = ord(check_char)
+    check_char_code -= ord('가')
+    check_char_code %= 28
+    if check_char_code != 0:
+      return "과"
+    else :
+      return "와"
+
+  # 기타
+  return "와(과)"
+
 # 기사 html form 동적 생성 -------------------------------------
 
 def create_form(nickname, article_dict):
@@ -265,6 +286,6 @@ def create_form(nickname, article_dict):
       html_sub_article = add_sub_article(article_info_list[1:])
       html_article = html_article + html_main_article + html_sub_article
     else :
-      html_article = html_article + html_main_article
+      html_article = html_article + html_main_article + space_between_article()
 
   return html_start + html_logo_and_user_info_box + html_article + html_end

@@ -15,30 +15,25 @@ def getArticle(cursor, article_id):
 # process editor data ------------------------------------------
 # 사용자 별 키워드로 키워드에 따른 기사 id들을 반환
 def getUserInterestArticleIdDict(cursor, user_interest_dict):
-  # user_id : {키워드 : 기사id 리스트}로 이루어진 딕셔너리
-  user_interest_article_id_dict = {}
-  
-  for user_id, keyword_list in user_interest_dict.items():
-    # 키워드 : 기사id 리스트 로 이루어진 딕셔너리
-    article_id_dict = {}
+    user_interest_article_id_dict = {}
 
-    for keyword in keyword_list:
-      user_article_id = getArticleIdByKeyword(cursor, keyword)
+    for user_id, keyword_list in user_interest_dict.items():
+      article_id_dict = {}
+      for keyword in keyword_list:
+        user_article_id = getArticleIdByKeyword(cursor, keyword)
 
-      # 키워드 관련 기사 id가 없으면 딕셔너리에 포함 시키지 않음
-      if len(user_article_id) >= 1:
-        article_id_to_array = user_article_id[0][0].split(" ")
-        if len(article_id_to_array) >= 4:
-          article_id_dict[keyword] = article_id_to_array[0:4]
-        else :
-          article_id_dict[keyword] = article_id_to_array
+        if len(user_article_id) >= 1:
+          article_id_to_array = user_article_id[0][0].split(" ")
+          if len(article_id_to_array) >= 4:
+            article_id_dict[keyword] = list(set(article_id_to_array[0:4]))
+          else:
+            article_id_dict[keyword] = list(set(article_id_to_array))
 
-    # 키워드 별 기사id 딕셔너리 1개 이상이면 id : 키워드별 기사 딕셔너리 추가
-    # 따라서 키워드 당 관련 기사가 하나도 없으면 해당 사용자한테는 이메일 안보냄.
-    if len(article_id_dict) >= 1 :
-      user_interest_article_id_dict[user_id] = article_id_dict
+      if len(article_id_dict) >= 1:
+          user_interest_article_id_dict[user_id] = article_id_dict
+          
+    return user_interest_article_id_dict
     
-  return user_interest_article_id_dict
 
   # 기사 ids로 유저 별 article 정보 불러오기
 def getArticleInfoDict(cursor, user_interest_article_id_dict):
