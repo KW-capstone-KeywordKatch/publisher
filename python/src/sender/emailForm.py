@@ -117,7 +117,7 @@ def add_main_article(keyword, article_info:list):
                           <td style="font-size: 0; line-height: 0" width="20">
                             &nbsp;
                           </td>
-                          <td width="212" height="141" style="text-align: center; border: 1px solid black;">
+                          <td width="212" height="141" style="display: flex; justify-content: flex-end; border-radius: 5px;">
                             <!-- 기사 사진-->
                             <img
                               style="max-width: 212px; max-height: 141px"
