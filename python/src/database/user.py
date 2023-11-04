@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # about user RDS ----------------------------------------------------------------------
 def getAllUserInfo(cursor):
@@ -74,8 +74,10 @@ def checkUserSendTime(user):
 
   if user_send_time == None:
     return False
-
-  current_time = datetime.now().time().strftime("%H:%M")
+  # 한국 시간 = 미국시간 + 9h
+  current_time = datetime.now() + timedelta(hours=9)
+  
+  modify_time = current_time.time().strftime("%H:%M")
   
   user_send_time_str_list = user_send_time.split(" ")
   user_send_time_list = []
@@ -85,8 +87,8 @@ def checkUserSendTime(user):
     user_send_time_list.append(user_time)
 
   print(user_nickname,"님의 이메일 전송시간 확인 중..")
-  
-  if current_time in user_send_time_list:
+  print(modify_time,"and",user_send_time_list)
+  if modify_time in user_send_time_list:
     print("이메일 전송 가능")
     return True
   else :

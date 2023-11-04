@@ -5,8 +5,11 @@ import src.database.editor as editor
 import src.sender.send as send
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
+import time
 
 app = Flask(__name__, static_folder="../client/build/static", template_folder="../client")
+
+app.config['TIMEZONE'] = 'Asia/Seoul'
 
 # database 연결
 @app.route('/connect/local')
@@ -30,8 +33,9 @@ def connect_user_db():
 # 사용자에게 email로 기사 보내기
 @app.route('/send')
 def send_request():
-  response = send.send_email_each_time(user_cursor, editor_cursor)
-  return jsonify(response)
+  with app.app_context():
+    response = send.send_email_each_time(user_cursor, editor_cursor)
+    return jsonify(response)
 
 # 모든 유저 정보 열람
 @app.route('/get/user')
@@ -65,12 +69,33 @@ def get_articles_for_user(user_id):
 def come_to_publisher():
   return render_template("build/index.html")
 
-scheduler = BackgroundScheduler()
-start_time = datetime(datetime.now().year, datetime.now().month, datetime.now().day, 6, 30)
-end_time = datetime(datetime.now().year, datetime.now().month, datetime.now().day, 18, 31)
-interval = timedelta(hours=3)
-scheduler.add_job(func=send_request, trigger='interval', start_date=start_time, end_date=end_time, hours=interval.seconds // 3600)
-scheduler.start()
+def today_send_email_sched():
+    sched2 = BackgroundScheduler()
+    current_time = datetime.now()
+    # 미국 시간 = 한국 시간 - 9시간
+    start_time = datetime(current_time.year, current_time.month, current_time.day, 21, 30)
+    end_time = start_time + timedelta(seconds=12)
+    interval = timedelta(hours=3)
+    sched2.add_job(func=send_request, trigger='interval', start_date=start_time, end_date=end_time, hours=interval.seconds // 3600, id='today_send')
+    print("start2")
+    sched2.start()
+    print("end2")
+    i = 0
+    while i < 13:
+        time.sleep(1)
+        i += 1
+
+def send_email_sched_daily():
+    sched = BackgroundScheduler()
+    sched.add_job(today_send_email_sched, 'interval', days=1, id='daily_send')
+    sched.start()
+    today_send_email_sched()
+    while True:
+        time.sleep(1)
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0', port='5001', debug=True)
+  #connect_local_db()
+  connect_editor_db()
+  connect_user_db()
+  send_email_sched_daily()
