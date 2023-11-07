@@ -6,36 +6,47 @@ import src.sender.send as send
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime, timedelta
 import time
+import threading
 
 app = Flask(__name__, static_folder="../client/build/static", template_folder="../client")
 
 app.config['TIMEZONE'] = 'Asia/Seoul'
 
+def connect_user_db():
+  global user_connect, user_cursor
+  user_connect, user_cursor = connect.connectUSERRDS()
+
+def connect_editor_db():
+  global editor_connect, editor_cursor
+  editor_connect, editor_cursor = connect.connectARTICLERDS()
+
 # database 연결
 @app.route('/connect/local')
-def connect_local_db():
+def connect_local_db_api():
   global user_connect, user_cursor
   user_connect, user_cursor = connect.connectLOCALRDS()
   return "success connect with localDB"
 
 @app.route('/connect/editor')
-def connect_editor_db():
-  global editor_connect, editor_cursor
-  editor_connect, editor_cursor = connect.connectARTICLERDS()
+def connect_editor_db_api():
+  connect_editor_db()
   return "success connect with EditoDB"
 
 @app.route('/connect/user')
-def connect_user_db():
-  global user_connect, user_cursor
-  user_connect, user_cursor = connect.connectUSERRDS()
+def connect_user_db_api():
+  connect_user_db()
   return "success connect with UserDB"
 
 # 사용자에게 email로 기사 보내기
-@app.route('/send')
-def send_request():
+def send_email():
   with app.app_context():
     response = send.send_email_each_time(user_cursor, editor_cursor)
-    return jsonify(response)
+    return response
+  
+@app.route('/send')
+def send_request():
+  send_email_sched_daily()
+  return jsonify("true")
 
 # 모든 유저 정보 열람
 @app.route('/get/user')
@@ -74,28 +85,26 @@ def today_send_email_sched():
     current_time = datetime.now()
     # 미국 시간 = 한국 시간 - 9시간
     start_time = datetime(current_time.year, current_time.month, current_time.day, 21, 30)
-    end_time = start_time + timedelta(seconds=12)
+    #start_time = datetime.now()
+    end_time = start_time + timedelta(hours=12)
+    #end_time = start_time + timedelta(seconds=31)
     interval = timedelta(hours=3)
-    sched2.add_job(func=send_request, trigger='interval', start_date=start_time, end_date=end_time, hours=interval.seconds // 3600, id='today_send')
-    print("start2")
+    sched2.add_job(func=send_email, trigger='interval', start_date=start_time, end_date=end_time, hours=interval.seconds // 3600, id='today_send')
+    print(start_time)
+    print(end_time)
     sched2.start()
-    print("end2")
-    i = 0
-    while i < 13:
-        time.sleep(1)
-        i += 1
 
+    time.sleep(3600*12)
+        
 def send_email_sched_daily():
     sched = BackgroundScheduler()
     sched.add_job(today_send_email_sched, 'interval', days=1, id='daily_send')
+    print("start")
     sched.start()
+    print("end")
     today_send_email_sched()
     while True:
         time.sleep(1)
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0', port='5001', debug=True)
-  #connect_local_db()
-  connect_editor_db()
-  connect_user_db()
-  send_email_sched_daily()

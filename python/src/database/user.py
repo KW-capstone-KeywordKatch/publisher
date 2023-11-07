@@ -39,14 +39,21 @@ def getUserData(user_cursor):
 
   if len(user_infos) == 0 :
     return user_info_dict, user_id_list
-
-  for user_info in user_infos:
+  
+  '''
+    for user_info in user_infos:
     user_data = list(user_info)
     is_sendable_user = checkUserSendTime(user_data)
 
     if is_sendable_user:
       user_info_dict[user_data[0]] = [user_data[1],user_data[3]]
       user_id_list.append(user_data[0])
+  '''
+
+  for user_info in user_infos:
+    user_data = list(user_info)
+    user_info_dict[user_data[0]] = [user_data[1],user_data[3]]
+    user_id_list.append(user_data[0])
 
   print("전송 유저 : ",user_info_dict)   
 
